@@ -29,8 +29,9 @@ rörelseläge med flera steg: åkbanor framåt/bakåt, passningar, upplock av l�
 skott mot mål, uppspelning steg för steg eller i följd, och sparade spel.
 
 **Tangentbord:** `V` flytta · `1`–`5` ritverktyg · `E` sudd · `M` rörelseläge ·
-`F`/`B` framåt/bakåt · `←`/`→` vrid markerad spelare (Shift = 5°) · `Mellanslag` spela ·
-`R` reset · `Ctrl+Z` / `Ctrl+Y` ångra/gör om · `Ctrl+dra` flytta pjäs i rörelseläget.
+`F`/`B` framåt/bakåt · `←`/`→` vrid markerad spelare (Shift = 5°) · `Mellanslag` spela
+från aktuellt steg · `Esc` stoppa uppspelning · `R` reset · `Ctrl+Z` / `Ctrl+Y`
+ångra/gör om · `Ctrl+dra` flytta pjäs i rörelseläget.
 
 ## Arkitektur
 
@@ -92,6 +93,21 @@ Händelser som bryter kedjan döljs men raderas inte — de återkommer om kedja
 Passningar går mitt i steget; upplock sker när spelaren är som närmast pucken längs
 sin bana.
 
+### Ett läge i taget
+Verktygsfältet visar bara det läge man är i: `#toolbar[data-mode]` sätts av
+`ui.refresh()` och CSS gömmer `[data-when="draw"]` respektive `[data-when="motion"]`.
+Ritverktygen och rörelsekontrollerna hör inte ihop och ska inte dela plats — på
+surfplatta blev det annars tre knapprader. Rörelseläget har därför en **egen
+suddknapp** (`data-tool="erase"`); `erase` ligger inte i `DRAW_TOOLS`, så den
+stänger inte av rörelseläget.
+
+### Säkra ytor på iPad
+`viewport-fit=cover` + `apple-mobile-web-app-status-bar-style: black-translucent`
+gör att sidan ritas **under** statusraden i app-läge. Utan marginal hamnar översta
+knappraden bakom den och träffarna tas av systemet — knapparna syns men går inte
+att trycka på. Insetarna ligger i `--safe-top/right/bottom/left` (defaultar till
+`env(safe-area-inset-*)`) så att de går att sätta till testvärden från konsolen.
+
 ### Uppspelningens timing
 Farten ska vara jämn genom hela spelet. `playAll` ger varje steg tid i proportion till
 dess banlängd, bromsar bara in i början och ut på slutet, och bär över överskjuten tid
@@ -101,11 +117,25 @@ skarven exakt matchar linjär uppspelning. Riktningen vägs in över första 12 
 Det här löste konkret "oflyt" mellan steg: fullt stopp vid varje stegbyte, 7,5° riktningsryck
 och olika åkfart beroende på banlängd.
 
+All uppspelning går genom `playFrom(från)`: **Spela** = `playFrom(current)` (aktuellt
+steg och alla efter), **Alla** = `playFrom(0)`. Ett enskilt steg mitt i ett spel är
+sällan intressant för sig självt. `playSeq` räknas upp av `anim.stop()` så att en
+avbruten kedja inte fortsätter i bakgrunden — att bara nolla `rafId` räcker inte,
+eftersom `next()` kan hinna anropas från en redan schemalagd bildruta.
+
+`anim.stop()` ställer också tillbaka tavlan på aktuellt steg. Interna anropare som
+själva sätter om läget efteråt (`clearPaths`, `loadState`, `save.restore`) skickar
+`stop(true)`, annars ritas ett läge som är på väg att kastas.
+
 ### Ångra
 Två separata historiker. `HTB.ui.undo/redo` routar efter läge: **rörelseläget på →
 `anim.undo()`**, av → `draw.undo()`. `anim` använder hela ögonblicksbilder av
 `base` + `steps`; kopiera **alla** fält på puckhändelser (`x`, `y`, `goal`), annars
 tappar ett skott sin målpunkt.
+
+`restore()` måste rensa **spårlagret**. `renderPaths()` ritar bara om `paths`-lagret,
+så spår från en uppspelning låg kvar och den ångrade banan såg ut att finnas kvar
+tills man bytte steg (vilket rensar lagret).
 
 ### Service worker och js-cachen
 `sw.js` är **nätverk-först**: uppkopplad hämtas alltid färsk kod, så den hårda

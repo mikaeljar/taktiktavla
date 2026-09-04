@@ -7,7 +7,7 @@
   var S = HTB.state;
   var ui = HTB.ui = {};
 
-  var elStart, elApp, elHint, hintTimer;
+  var elStart, elApp, elHint, elToolbar, hintTimer;
 
   /* ------------------------------------------------------------
      Notis langst ner pa tavlan
@@ -128,7 +128,7 @@
       HTB.anim.setEnabled(!HTB.anim.enabled);
       ui.hint(HTB.anim.enabled
         ? 'Rörelseläge PÅ – dra för att rita bana, Ctrl+dra för att flytta spelaren'
-        : 'Rörelseläge AV – dra en spelare för att flytta hen');
+        : 'Rörelseläge AV – ritverktygen är tillbaka');
     });
 
     document.querySelectorAll('[data-dir]').forEach(function (b) {
@@ -145,6 +145,9 @@
     document.getElementById('btnDelStep').addEventListener('click', HTB.anim.removeStep);
     document.getElementById('btnPlay').addEventListener('click', HTB.anim.play);
     document.getElementById('btnPlayAll').addEventListener('click', HTB.anim.playAll);
+    document.getElementById('btnStop').addEventListener('click', function () {
+      HTB.anim.stop();
+    });
     document.getElementById('btnReset').addEventListener('click', HTB.anim.reset);
     document.getElementById('btnClearPaths').addEventListener('click', HTB.anim.clearPaths);
   }
@@ -256,6 +259,12 @@
      Uppdatera hela verktygsfaltets tillstand
      ------------------------------------------------------------ */
   ui.refresh = function () {
+    // Verktygsfaltet visar bara det lage man faktiskt ar i - ritverktygen
+    // och rorelsekontrollerna hor inte ihop och ska inte dela plats.
+    if (elToolbar) {
+      elToolbar.setAttribute('data-mode', HTB.anim.enabled ? 'motion' : 'draw');
+    }
+
     document.querySelectorAll('[data-tool]').forEach(function (b) {
       b.classList.toggle('active', b.getAttribute('data-tool') === S.tool);
     });
@@ -285,8 +294,17 @@
 
     var has = HTB.anim.hasPaths();
     var playing = HTB.anim.playing;
-    document.getElementById('btnPlay').disabled = !HTB.anim.stepHasPaths(HTB.anim.current);
-    document.getElementById('btnPlayAll').disabled = !has || HTB.anim.steps.length < 2;
+    var fromHere = HTB.anim.hasPathsFrom(HTB.anim.current);
+    var last = HTB.anim.steps.length - 1;
+
+    var playBtn = document.getElementById('btnPlay');
+    playBtn.disabled = playing || !fromHere;
+    playBtn.title = HTB.anim.current < last
+      ? 'Spela steg ' + (HTB.anim.current + 1) + '–' + (last + 1) + ' (Mellanslag)'
+      : 'Spela detta steg (Mellanslag)';
+
+    document.getElementById('btnPlayAll').disabled = playing || !has || HTB.anim.steps.length < 2;
+    document.getElementById('btnStop').disabled = !playing;
     document.getElementById('btnReset').disabled = playing;
     document.getElementById('btnDelStep').disabled = HTB.anim.steps.length < 2 || playing;
     document.getElementById('btnAddStep').disabled = playing;
@@ -345,6 +363,9 @@
       }
       if (k === 'r') { ev.preventDefault(); HTB.anim.reset(); return; }
       if (ev.key === ' ') { ev.preventDefault(); HTB.anim.play(); return; }
+      if (ev.key === 'Escape' && HTB.anim.playing) {
+        ev.preventDefault(); HTB.anim.stop(); return;
+      }
     });
   }
 
@@ -355,6 +376,7 @@
     elStart = document.getElementById('startMenu');
     elApp = document.getElementById('app');
     elHint = document.getElementById('hint');
+    elToolbar = document.getElementById('toolbar');
 
     buildStartMenu();
     buildColors();

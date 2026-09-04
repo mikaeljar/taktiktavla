@@ -117,11 +117,18 @@
     redoStack.length = 0;
   }
 
+  /* Ritlagret ar rensat och omritat, men Angra/Gor om-knapparnas
+     tillstand sitter i verktygsfaltet och maste stallas om darifran. */
+  function refreshUi() {
+    if (HTB.ui && HTB.ui.refresh) HTB.ui.refresh();
+  }
+
   draw.undo = function () {
     if (!undoStack.length) return;
     redoStack.push(draw.items.slice());
     draw.items = undoStack.pop();
     draw.renderAll();
+    refreshUi();
   };
 
   draw.redo = function () {
@@ -129,6 +136,7 @@
     undoStack.push(draw.items.slice());
     draw.items = redoStack.pop();
     draw.renderAll();
+    refreshUi();
   };
 
   draw.canUndo = function () { return undoStack.length > 0; };
@@ -139,6 +147,7 @@
     pushHistory();
     draw.items = [];
     draw.renderAll();
+    refreshUi();
   };
 
   /* ------------------------------------------------------------
@@ -186,6 +195,7 @@
         }
         if (live === current) live = null;
         draw.renderAll();
+        refreshUi();
       }
     });
   };
@@ -203,6 +213,7 @@
     pushHistory();
     draw.items.splice(idx, 1);
     draw.renderAll();
+    refreshUi();
     return true;
   };
 

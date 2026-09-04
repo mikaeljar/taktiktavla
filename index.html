@@ -44,7 +44,7 @@
 <!-- ============ APP ============ -->
 <div id="app" hidden>
 
-  <header id="toolbar">
+  <header id="toolbar" data-mode="draw">
 
     <div class="tgroup">
       <button class="tbtn" id="btnChangeBoard" title="Välj annat format">Tavla</button>
@@ -71,7 +71,8 @@
       <button class="tbtn seg" data-style="disc">Bricka</button>
     </div>
 
-    <div class="tgroup">
+    <!-- Ritverktygen hör till ritläget och göms när rörelseläget slås på -->
+    <div class="tgroup" data-when="draw">
       <span class="tlabel">Verktyg</span>
       <button class="tbtn tool active" data-tool="select" title="Flytta pjäser (V)"><span class="ti">&#10021;</span></button>
       <button class="tbtn tool" data-tool="skate" title="Åkning (1)"><span class="ti">&#10230;</span></button>
@@ -82,29 +83,42 @@
       <button class="tbtn tool" data-tool="erase" title="Sudd – klicka på en ritad linje (E)"><span class="ti">&#9003;</span></button>
     </div>
 
-    <div class="tgroup" id="colorGroup">
+    <div class="tgroup" id="colorGroup" data-when="draw">
       <span class="tlabel">Färg</span>
     </div>
 
     <div class="tgroup">
       <button class="tbtn" id="btnUndo" title="Ångra (Ctrl+Z)">Ångra</button>
       <button class="tbtn" id="btnRedo" title="Gör om (Ctrl+Y)">Gör om</button>
-      <button class="tbtn" id="btnClearDraw" title="Ta bort alla ritade linjer">Rensa ritning</button>
+      <button class="tbtn" id="btnClearDraw" data-when="draw" title="Ta bort alla ritade linjer">Rensa ritning</button>
     </div>
 
     <div class="tgroup grow motion">
       <button class="tbtn wide toggle" id="btnMotion" title="Rörelseläge (M)">Rörelseläge: <b>Av</b></button>
-      <span class="tlabel">Åkning</span>
-      <button class="tbtn seg dir active" data-dir="fwd" title="Framåtåkning (F)">Framåt</button>
-      <button class="tbtn seg dir" data-dir="bwd" title="Bakåtåkning (B)">Bakåt</button>
-      <span class="tlabel">Steg</span>
-      <span id="stepList" class="steplist"></span>
-      <button class="tbtn icon" id="btnAddStep" title="Lägg till steg">+</button>
-      <button class="tbtn icon" id="btnDelStep" title="Ta bort sista steget">&minus;</button>
-      <button class="tbtn play" id="btnPlay" title="Spela aktuellt steg (Mellanslag)">&#9654; Spela</button>
-      <button class="tbtn play" id="btnPlayAll" title="Spela alla steg i följd">&#9654;&#9654; Alla</button>
-      <button class="tbtn" id="btnReset" title="Återställ (R)">&#8635; Reset</button>
-      <button class="tbtn" id="btnClearPaths" title="Ta bort alla inspelade banor">Rensa banor</button>
+
+      <span class="tlabel" data-when="motion">Verktyg</span>
+      <button class="tbtn tool" data-tool="select" data-when="motion"
+              title="Flytta pjäser och rita banor (V)"><span class="ti">&#10021;</span></button>
+      <button class="tbtn tool" data-tool="erase" data-when="motion"
+              title="Sudda bana, passning eller skott (E)"><span class="ti">&#9003;</span></button>
+
+      <span class="tlabel" data-when="motion">Åkning</span>
+      <button class="tbtn seg dir active" data-dir="fwd" data-when="motion" title="Framåtåkning (F)">Framåt</button>
+      <button class="tbtn seg dir" data-dir="bwd" data-when="motion" title="Bakåtåkning (B)">Bakåt</button>
+
+      <span class="tlabel" data-when="motion">Steg</span>
+      <span id="stepList" class="steplist" data-when="motion"></span>
+      <button class="tbtn icon" id="btnAddStep" data-when="motion" title="Lägg till steg">+</button>
+      <button class="tbtn icon" id="btnDelStep" data-when="motion" title="Ta bort sista steget">&minus;</button>
+
+      <button class="tbtn play" id="btnPlay" data-when="motion"
+              title="Spela från detta steg och framåt (Mellanslag)">&#9654; Spela</button>
+      <button class="tbtn play" id="btnPlayAll" data-when="motion"
+              title="Spela alla steg från början">&#9654;&#9654; Alla</button>
+      <button class="tbtn stop" id="btnStop" data-when="motion"
+              title="Avbryt uppspelningen (Esc)">&#9632; Stoppa</button>
+      <button class="tbtn" id="btnReset" data-when="motion" title="Återställ (R)">&#8635; Reset</button>
+      <button class="tbtn" id="btnClearPaths" data-when="motion" title="Ta bort alla inspelade banor">Rensa banor</button>
     </div>
 
   </header>

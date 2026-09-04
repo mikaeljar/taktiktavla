@@ -89,7 +89,7 @@
     if (!data) return false;
     var d = JSON.parse(JSON.stringify(data));   // kopia, sa originalet inte muteras
 
-    HTB.anim.stop();
+    HTB.anim.stop(true);
 
     S.rotation = d.rotation || 0;
     S.flipX = !!d.flipX;

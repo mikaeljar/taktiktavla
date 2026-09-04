@@ -185,6 +185,10 @@
     anim.base = snap.base;
     anim.steps = snap.steps;
     anim.current = Math.min(snap.current, anim.steps.length - 1);
+    // Sparlagret ligger kvar efter en uppspelning och ritas inte om av
+    // renderPaths. Utan den har rensningen syns den angrade banan kvar
+    // som ett spar tills man byter steg (som rensar lagret).
+    util.clear(layerTrails());
     gotoStepState(anim.current);
     anim.renderPaths();
     HTB.ui.refresh();
@@ -532,6 +536,13 @@
             pts: util.simplify(pts, 0.18 * S.scale),
             dir: S.skateDir
           };
+          // Bakatakning ar undantaget, inte normallaget. Att lamna kvar
+          // det efter en inspelad bana gor att nasta bana blir bakat av
+          // misstag - vanliga fallet ar att man glommer vaxla tillbaka.
+          if (S.skateDir === 'bwd') {
+            S.skateDir = 'fwd';
+            HTB.ui.hint('Bakåtbana inspelad – åkriktningen är tillbaka på framåt');
+          }
         } else if (step.paths[playerId]) {
           // Ett kort klick pa en spelare som redan har en bana ska inte
           // radera den - det vander den mellan framat och bakat istallet.
@@ -742,7 +753,7 @@
   };
 
   anim.clearPaths = function () {
-    anim.stop();
+    anim.stop(true);
     clearHistory();
     if (anim.base) applyState(stateAtStep(0));
     anim.steps = [newStep()];
@@ -756,7 +767,7 @@
 
   /* Laser in ett sparat spels rorelser */
   anim.loadState = function (state) {
-    anim.stop();
+    anim.stop(true);
     clearHistory();
     anim.base = state.base || null;
     anim.steps = (state.steps && state.steps.length) ? state.steps : [newStep()];
@@ -777,6 +788,14 @@
 
   anim.hasPaths = function () {
     return anim.steps.some(function (s, i) { return anim.stepHasPaths(i); });
+  };
+
+  /* Finns det nagot att spela upp fran steg `from` och framat? */
+  anim.hasPathsFrom = function (from) {
+    for (var i = from; i < anim.steps.length; i++) {
+      if (anim.stepHasPaths(i)) return true;
+    }
+    return false;
   };
 
   /* ------------------------------------------------------------
@@ -962,28 +981,28 @@
     else rafId = requestAnimationFrame(frame);
   }
 
-  anim.play = function () {
-    if (anim.playing) { anim.stop(); return; }
-    util.clear(layerPaths());
-    runStep(anim.current, { easeIn: true, easeOut: true }, function () {
-      anim.renderPaths();
-    });
-  };
+  /* Loper stegen fran `from` till sista steget i en obruten kedja.
+     Ett steg mitt i spelet ar sallan intressant for sig sjalvt - star man
+     pa steg 4 vill man se 4, 5 och 6, inte bara 4. */
+  var playSeq = 0;
 
-  anim.playAll = function () {
+  function playFrom(from) {
     if (anim.playing) { anim.stop(); return; }
+    if (!anim.steps[from] || !anim.hasPathsFrom(from)) return;
+
     util.clear(layerPaths());
     util.clear(layerTrails());
 
     var n = anim.steps.length;
     var saved = anim.current;
+    var seq = ++playSeq;   // en stoppad kedja far inte fortsatta i bakgrunden
 
     // Varje steg far tid i proportion till hur langt det ar, sa att
     // akfarten blir densamma genom hela spelet. Ett steg utan akning
     // (bara passning eller upplock) far en kortare fast tid.
     var lengths = [];
-    for (var k = 0; k < n; k++) lengths.push(stepPathLength(k));
-    var moving = lengths.filter(function (l) { return l > 0; });
+    for (var k = 0; k < n; k++) lengths.push(k >= from ? stepPathLength(k) : 0);
+    var moving = lengths.slice(from).filter(function (l) { return l > 0; });
     var avg = moving.length
       ? moving.reduce(function (s, l) { return s + l; }, 0) / moving.length
       : 1;
@@ -994,8 +1013,9 @@
                         anim.duration * 0.35, anim.duration * 2.5);
     }
 
-    var i = 0;
+    var i = from;
     function next(carryMs) {
+      if (seq !== playSeq) return;
       if (i >= n) {
         anim.current = saved;
         anim.renderPaths();
@@ -1007,25 +1027,37 @@
       HTB.ui.refresh();
       // Bromsa bara in i borjan och ut pa slutet - daremellan halls farten
       runStep(idx, {
-        keepTrails: idx > 0,
-        easeIn: idx === 0,
+        keepTrails: idx > from,
+        easeIn: idx === from,
         easeOut: idx === n - 1,
         duration: durationOf(idx),
         carryMs: carryMs || 0
       }, next);
     }
     next(0);
-  };
+  }
 
-  anim.stop = function () {
+  anim.play = function () { playFrom(anim.current); };
+  anim.playAll = function () { playFrom(0); };
+
+  /* silent=true nar den som anropar sjalv staller om tavlan efterat
+     (clearPaths, loadState) - annars skulle vi rita upp ett lage som
+     ar pa vag att kastas. */
+  anim.stop = function (silent) {
     if (rafId) cancelAnimationFrame(rafId);
     rafId = null;
+    playSeq++;
     anim.playing = false;
+    if (!silent && anim.base) {
+      util.clear(layerTrails());
+      gotoStepState(anim.current);
+      anim.renderPaths();
+    }
     HTB.ui.refresh();
   };
 
   anim.reset = function () {
-    anim.stop();
+    anim.stop(true);
     util.clear(layerTrails());
     gotoStepState(anim.current);
     anim.renderPaths();
