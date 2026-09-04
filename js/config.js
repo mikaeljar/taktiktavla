@@ -35,13 +35,15 @@ window.HTB = window.HTB || {};
             crossIceGoals: true }
   };
 
-  /* ---------- Lagfarger (inspirerade av bordshockeygubbarna) ---------- */
+  /* ---------- Lagfarger ----------
+     Lag 1 foljer klubbdrakten: morkbla bas med gult, vita siffror/bokstaver.
+     Hjalmen ar en aning ljusare bla an trojan sa att huvudet syns mot kroppen. */
   HTB.TEAMS = {
     A: {
       name: 'Lag 1',
-      jersey: '#f5c518', trim: '#1552b0', helmet: '#1552b0',
-      glove: '#1552b0', skate: '#0e3f8c', label: '#16243d',
-      discText: '#16243d', trail: '#d9a400'
+      jersey: '#17243f', trim: '#f5c518', helmet: '#22345c',
+      glove: '#f5c518', skate: '#0e1729', label: '#ffffff',
+      discText: '#ffffff', trail: '#e8b400'
     },
     B: {
       name: 'Lag 2',
