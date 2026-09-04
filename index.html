@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Hockey Taktiktavla</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ STARTMENY ============ -->
+<div id="startMenu" class="overlay">
+  <div class="menu-box">
+    <h1>Hockey&nbsp;Taktiktavla</h1>
+    <p class="menu-sub">Välj format på tavlan</p>
+    <div class="menu-cards">
+      <button class="menu-card" data-format="full">
+        <span class="thumb" data-thumb="full"></span>
+        <span class="menu-card-name">Helplan</span>
+        <span class="menu-card-desc">Hela rinken</span>
+      </button>
+      <button class="menu-card" data-format="half">
+        <span class="thumb" data-thumb="half"></span>
+        <span class="menu-card-name">Halvplan</span>
+        <span class="menu-card-desc">Mål till mittlinje</span>
+      </button>
+      <button class="menu-card" data-format="zone">
+        <span class="thumb" data-thumb="zone"></span>
+        <span class="menu-card-name">Zon</span>
+        <span class="menu-card-desc">Mål till blålinje</span>
+      </button>
+    </div>
+    <p class="menu-hint">Tavlan går att rotera och spegla när som helst i verktygsfältet.</p>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" hidden>
+
+  <header id="toolbar">
+
+    <div class="tgroup">
+      <button class="tbtn" id="btnChangeBoard" title="Välj annat format">Tavla</button>
+    </div>
+
+    <div class="tgroup">
+      <span class="tlabel">Spel</span>
+      <select id="saveList" class="tsel" title="Öppna ett sparat spel"></select>
+      <button class="tbtn" id="btnSave" title="Spara nuvarande spel">Spara</button>
+      <button class="tbtn icon" id="btnDeleteSave" title="Ta bort valt spel">&#10005;</button>
+    </div>
+
+    <div class="tgroup">
+      <span class="tlabel">Vy</span>
+      <button class="tbtn icon" data-view="rotL" title="Rotera moturs">&#8630;</button>
+      <button class="tbtn icon" data-view="rotR" title="Rotera medurs">&#8631;</button>
+      <button class="tbtn icon" data-view="flipX" title="Spegla vågrätt">&#8646;</button>
+      <button class="tbtn icon" data-view="flipY" title="Spegla lodrätt">&#8645;</button>
+    </div>
+
+    <div class="tgroup">
+      <span class="tlabel">Pjäser</span>
+      <button class="tbtn seg active" data-style="figure">Gubbe</button>
+      <button class="tbtn seg" data-style="disc">Bricka</button>
+    </div>
+
+    <div class="tgroup">
+      <span class="tlabel">Verktyg</span>
+      <button class="tbtn tool active" data-tool="select" title="Flytta pjäser (V)"><span class="ti">&#10021;</span></button>
+      <button class="tbtn tool" data-tool="skate" title="Åkning (1)"><span class="ti">&#10230;</span></button>
+      <button class="tbtn tool" data-tool="skatepuck" title="Åkning med puck (2)"><span class="ti">&#8767;&#10230;</span></button>
+      <button class="tbtn tool" data-tool="pass" title="Passning (3)"><span class="ti">&#8674;</span></button>
+      <button class="tbtn tool" data-tool="shot" title="Skott (4)"><span class="ti">&#8649;</span></button>
+      <button class="tbtn tool" data-tool="pen" title="Frihand (5)"><span class="ti">&#9998;</span></button>
+      <button class="tbtn tool" data-tool="erase" title="Sudd – klicka på en ritad linje (E)"><span class="ti">&#9003;</span></button>
+    </div>
+
+    <div class="tgroup" id="colorGroup">
+      <span class="tlabel">Färg</span>
+    </div>
+
+    <div class="tgroup">
+      <button class="tbtn" id="btnUndo" title="Ångra (Ctrl+Z)">Ångra</button>
+      <button class="tbtn" id="btnRedo" title="Gör om (Ctrl+Y)">Gör om</button>
+      <button class="tbtn" id="btnClearDraw" title="Ta bort alla ritade linjer">Rensa ritning</button>
+    </div>
+
+    <div class="tgroup grow motion">
+      <button class="tbtn wide toggle" id="btnMotion" title="Rörelseläge (M)">Rörelseläge: <b>Av</b></button>
+      <span class="tlabel">Åkning</span>
+      <button class="tbtn seg dir active" data-dir="fwd" title="Framåtåkning (F)">Framåt</button>
+      <button class="tbtn seg dir" data-dir="bwd" title="Bakåtåkning (B)">Bakåt</button>
+      <span class="tlabel">Steg</span>
+      <span id="stepList" class="steplist"></span>
+      <button class="tbtn icon" id="btnAddStep" title="Lägg till steg">+</button>
+      <button class="tbtn icon" id="btnDelStep" title="Ta bort sista steget">&minus;</button>
+      <button class="tbtn play" id="btnPlay" title="Spela aktuellt steg (Mellanslag)">&#9654; Spela</button>
+      <button class="tbtn play" id="btnPlayAll" title="Spela alla steg i följd">&#9654;&#9654; Alla</button>
+      <button class="tbtn" id="btnReset" title="Återställ (R)">&#8635; Reset</button>
+      <button class="tbtn" id="btnClearPaths" title="Ta bort alla inspelade banor">Rensa banor</button>
+    </div>
+
+  </header>
+
+  <main id="main">
+    <aside id="bench">
+      <div class="bench-team" data-team="A">
+        <div class="bench-title">Lag 1</div>
+        <div class="bench-row" data-row="A"></div>
+      </div>
+      <div class="bench-team" data-team="B">
+        <div class="bench-title">Lag 2</div>
+        <div class="bench-row" data-row="B"></div>
+      </div>
+      <div class="bench-team">
+        <div class="bench-title">Puck</div>
+        <div class="bench-row" data-row="puck"></div>
+      </div>
+      <div class="bench-help">
+        Dra ut pjäser på isen.<br>
+        Dra tillbaka hit för att ta bort.<br>
+        Klicka en spelare för att vrida den.<br>
+        Släpp pucken på en spelare för att koppla den till klubban.<br>
+        I rörelseläget: dra pucken till en spelare för att passa,
+        eller för att låta hen plocka upp en lös puck.
+        Dra pucken till ett mål för att skjuta.
+      </div>
+    </aside>
+
+    <div id="stage">
+      <svg id="board" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+      <div id="hint" class="hint"></div>
+    </div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/rink.js"></script>
+<script src="js/board.js"></script>
+<script src="js/players.js"></script>
+<script src="js/puck.js"></script>
+<script src="js/draw.js"></script>
+<script src="js/animate.js"></script>
+<script src="js/save.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# OS-skrap
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor
+.vscode/
+*.swp
+*~
+
+# Claude Code lokala installningar
+.claude/settings.local.json
