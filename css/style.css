@@ -116,10 +116,23 @@ button{ font:inherit; color:inherit; }
 }
 .tgroup:last-child{ border-right:0; }
 .tgroup.grow{ margin-left:auto; border-right:0; }
-.tgroup.motion{
+
+/* Det aktiva lagets egna verktyg samlas i en tonad panel - inklusive
+   Angra/Gor om, som annars ser ut att hora till ritningen aven nar de
+   angrar rorelser. */
+.tgroup.pane{
   background:var(--accent-soft);
   border-radius:var(--radius);
-  padding:3px 6px;
+  border-right:0;
+  padding:3px 8px;
+  flex-wrap:wrap; gap:3px;
+}
+
+/* Lagesvaljaren ar faltets huvudreglage och far se ut som ett */
+.tgroup.modeswitch{ border-right:0; }
+.mode-btn{ font-weight:600; }
+.mode-btn.active{
+  background:var(--accent); border-color:var(--accent); color:#fff;
 }
 .tlabel{ color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; margin-right:1px; }
 
@@ -154,6 +167,7 @@ button{ font:inherit; color:inherit; }
 }
 .tsel:hover{ background:#eaeef3; }
 
+.swatches{ display:inline-flex; align-items:center; gap:3px; }
 .swatch{
   width:21px; height:21px; border-radius:50%;
   border:2px solid #fff; outline:1px solid var(--line);

@@ -94,12 +94,16 @@ Passningar går mitt i steget; upplock sker när spelaren är som närmast pucke
 sin bana.
 
 ### Ett läge i taget
-Verktygsfältet visar bara det läge man är i: `#toolbar[data-mode]` sätts av
-`ui.refresh()` och CSS gömmer `[data-when="draw"]` respektive `[data-when="motion"]`.
-Ritverktygen och rörelsekontrollerna hör inte ihop och ska inte dela plats — på
-surfplatta blev det annars tre knapprader. Rörelseläget har därför en **egen
-suddknapp** (`data-tool="erase"`); `erase` ligger inte i `DRAW_TOOLS`, så den
-stänger inte av rörelseläget.
+Verktygsfältet har en **lägesväljare** (`.mode-btn`, Ritning / Rörelse) som styr allt
+efter den: `#toolbar[data-mode]` sätts av `ui.refresh()` och CSS gömmer
+`[data-when="draw"]` respektive `[data-when="motion"]`. Varje läge har en egen
+`.tgroup.pane` med *sina* verktyg **och sitt eget Ångra/Gör om** — de har skilda
+historiker, så en gemensam knapp längre bort i fältet såg ut att höra till ritningen
+även när den ångrade rörelser. Knapparna märks `data-act="undo"/"redo"`; det finns ett
+par per läge och `ui.refresh()` sätter tillstånd på alla.
+
+Rörelseläget har en **egen suddknapp** (`data-tool="erase"`); `erase` ligger inte i
+`DRAW_TOOLS`, så den stänger inte av rörelseläget.
 
 ### Säkra ytor på iPad
 `viewport-fit=cover` + `apple-mobile-web-app-status-bar-style: black-translucent`
@@ -122,6 +126,11 @@ steg och alla efter), **Alla** = `playFrom(0)`. Ett enskilt steg mitt i ett spel
 sällan intressant för sig självt. `playSeq` räknas upp av `anim.stop()` så att en
 avbruten kedja inte fortsätter i bakgrunden — att bara nolla `rafId` räcker inte,
 eftersom `next()` kan hinna anropas från en redan schemalagd bildruta.
+
+Spåren bakom pjäserna (`TRAIL_WIDTH`, `TRAIL_OPACITY` i `animate.js`) ska vara
+**smalare och blekare än de förhandsvisade banorna** (0.16). Ett brett, täckande spår
+döljer rinkens linjer och konkurrerar med pjäserna — spåret ska göra rörelsen läsbar,
+inte ta över bilden.
 
 `anim.stop()` ställer också tillbaka tavlan på aktuellt steg. Interna anropare som
 själva sätter om läget efteråt (`clearPaths`, `loadState`, `save.restore`) skickar

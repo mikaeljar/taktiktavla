@@ -26,6 +26,12 @@
 
   var PASS_COLOR = '#16243d';
 
+  /* Sparet bakom en spelare under uppspelning. Det ska gora rorelsen last,
+     inte ta over bilden - ett brett, tackande spar doljer rinkens linjer och
+     konkurrerar med sjalva pjaserna. Smalare an forhandsvisade banor (0.16). */
+  var TRAIL_WIDTH = 0.10;
+  var TRAIL_OPACITY = 0.30;
+
   function newStep() { return { paths: {}, passes: [] }; }
 
   function passesOf(step) {
@@ -859,9 +865,9 @@
       var node = el('path', {
         d: d, fill: 'none',
         stroke: HTB.TEAMS[p.team].trail,
-        'stroke-width': 0.19 * S.scale,
+        'stroke-width': TRAIL_WIDTH * S.scale,
         'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-        opacity: 0.9, 'pointer-events': 'none'
+        opacity: TRAIL_OPACITY, 'pointer-events': 'none'
       }, layerTrails());
       var len = node.getTotalLength();
       node.setAttribute('stroke-dasharray', len + ' ' + len);

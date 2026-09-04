@@ -120,15 +120,19 @@
       });
     });
 
-    document.getElementById('btnUndo').addEventListener('click', ui.undo);
-    document.getElementById('btnRedo').addEventListener('click', ui.redo);
+    // Ett par per lage - bada gor samma sak, ui.undo routar efter lage
+    document.querySelectorAll('[data-act="undo"]').forEach(function (b) {
+      b.addEventListener('click', ui.undo);
+    });
+    document.querySelectorAll('[data-act="redo"]').forEach(function (b) {
+      b.addEventListener('click', ui.redo);
+    });
     document.getElementById('btnClearDraw').addEventListener('click', HTB.draw.clearAll);
 
-    document.getElementById('btnMotion').addEventListener('click', function () {
-      HTB.anim.setEnabled(!HTB.anim.enabled);
-      ui.hint(HTB.anim.enabled
-        ? 'Rörelseläge PÅ – dra för att rita bana, Ctrl+dra för att flytta spelaren'
-        : 'Rörelseläge AV – ritverktygen är tillbaka');
+    document.querySelectorAll('.mode-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        setMode(b.getAttribute('data-mode'));
+      });
     });
 
     document.querySelectorAll('[data-dir]').forEach(function (b) {
@@ -237,6 +241,18 @@
   }
   ui.setTool = setTool;
 
+  /* Lagesbyte. 'draw' = rita taktiksymboler, 'motion' = spela in rorelser.
+     Lagena delar inte verktyg och visas aldrig samtidigt. */
+  function setMode(mode) {
+    var toMotion = mode === 'motion';
+    if (HTB.anim.enabled === toMotion) return;
+    HTB.anim.setEnabled(toMotion);
+    ui.hint(toMotion
+      ? 'Rörelseläge – dra en spelare för att rita en bana, Ctrl+dra för att flytta hen'
+      : 'Ritläge – rita taktiksymboler på isen');
+  }
+  ui.setMode = setMode;
+
   /* ------------------------------------------------------------
      Stegvaljare
      ------------------------------------------------------------ */
@@ -284,11 +300,10 @@
       if (v === 'flipY') b.classList.toggle('active', S.flipY);
     });
 
-    var mb = document.getElementById('btnMotion');
-    if (mb) {
-      mb.classList.toggle('on', HTB.anim.enabled);
-      mb.innerHTML = 'Rörelseläge: <b>' + (HTB.anim.enabled ? 'På' : 'Av') + '</b>';
-    }
+    var mode = HTB.anim.enabled ? 'motion' : 'draw';
+    document.querySelectorAll('.mode-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+    });
 
     renderSteps();
 
@@ -311,12 +326,14 @@
     document.getElementById('btnClearPaths').disabled = !has || playing;
 
     var inMotion = HTB.anim.enabled;
-    var undoBtn = document.getElementById('btnUndo');
-    var redoBtn = document.getElementById('btnRedo');
-    undoBtn.disabled = inMotion ? !HTB.anim.canUndo() : !HTB.draw.canUndo();
-    redoBtn.disabled = inMotion ? !HTB.anim.canRedo() : !HTB.draw.canRedo();
-    undoBtn.title = inMotion ? 'Ångra senaste rörelsen (Ctrl+Z)' : 'Ångra (Ctrl+Z)';
-    redoBtn.title = inMotion ? 'Gör om senaste rörelsen (Ctrl+Y)' : 'Gör om (Ctrl+Y)';
+    var canUndo = inMotion ? HTB.anim.canUndo() : HTB.draw.canUndo();
+    var canRedo = inMotion ? HTB.anim.canRedo() : HTB.draw.canRedo();
+    document.querySelectorAll('[data-act="undo"]').forEach(function (b) {
+      b.disabled = !canUndo;
+    });
+    document.querySelectorAll('[data-act="redo"]').forEach(function (b) {
+      b.disabled = !canRedo;
+    });
   };
 
   /* ------------------------------------------------------------
@@ -358,7 +375,7 @@
       if (k === 'e') { ev.preventDefault(); setTool('erase'); return; }
       if (k === 'm') {
         ev.preventDefault();
-        HTB.anim.setEnabled(!HTB.anim.enabled);
+        setMode(HTB.anim.enabled ? 'draw' : 'motion');
         return;
       }
       if (k === 'r') { ev.preventDefault(); HTB.anim.reset(); return; }

@@ -71,8 +71,15 @@
       <button class="tbtn seg" data-style="disc">Bricka</button>
     </div>
 
-    <!-- Ritverktygen hör till ritläget och göms när rörelseläget slås på -->
-    <div class="tgroup" data-when="draw">
+    <!-- Lägesväljaren styr allt som följer efter den -->
+    <div class="tgroup modeswitch">
+      <span class="tlabel">Läge</span>
+      <button class="tbtn seg mode-btn" data-mode="draw" title="Rita taktiksymboler (M)">&#9998; Ritning</button>
+      <button class="tbtn seg mode-btn" data-mode="motion" title="Spela in rörelser (M)">&#9654; Rörelse</button>
+    </div>
+
+    <!-- Ritläget: verktyg, färg och ritningens egen ångra -->
+    <div class="tgroup pane" data-when="draw">
       <span class="tlabel">Verktyg</span>
       <button class="tbtn tool active" data-tool="select" title="Flytta pjäser (V)"><span class="ti">&#10021;</span></button>
       <button class="tbtn tool" data-tool="skate" title="Åkning (1)"><span class="ti">&#10230;</span></button>
@@ -81,44 +88,43 @@
       <button class="tbtn tool" data-tool="shot" title="Skott (4)"><span class="ti">&#8649;</span></button>
       <button class="tbtn tool" data-tool="pen" title="Frihand (5)"><span class="ti">&#9998;</span></button>
       <button class="tbtn tool" data-tool="erase" title="Sudd – klicka på en ritad linje (E)"><span class="ti">&#9003;</span></button>
-    </div>
 
-    <div class="tgroup" id="colorGroup" data-when="draw">
       <span class="tlabel">Färg</span>
+      <span id="colorGroup" class="swatches"></span>
+
+      <button class="tbtn" data-act="undo" title="Ångra ritning (Ctrl+Z)">Ångra</button>
+      <button class="tbtn" data-act="redo" title="Gör om ritning (Ctrl+Y)">Gör om</button>
+      <button class="tbtn" id="btnClearDraw" title="Ta bort alla ritade linjer">Rensa ritning</button>
     </div>
 
-    <div class="tgroup">
-      <button class="tbtn" id="btnUndo" title="Ångra (Ctrl+Z)">Ångra</button>
-      <button class="tbtn" id="btnRedo" title="Gör om (Ctrl+Y)">Gör om</button>
-      <button class="tbtn" id="btnClearDraw" data-when="draw" title="Ta bort alla ritade linjer">Rensa ritning</button>
-    </div>
-
-    <div class="tgroup grow motion">
-      <button class="tbtn wide toggle" id="btnMotion" title="Rörelseläge (M)">Rörelseläge: <b>Av</b></button>
-
-      <span class="tlabel" data-when="motion">Verktyg</span>
-      <button class="tbtn tool" data-tool="select" data-when="motion"
+    <!-- Rörelseläget: banor, steg, uppspelning och rörelsernas egen ångra -->
+    <div class="tgroup pane" data-when="motion">
+      <span class="tlabel">Verktyg</span>
+      <button class="tbtn tool" data-tool="select"
               title="Flytta pjäser och rita banor (V)"><span class="ti">&#10021;</span></button>
-      <button class="tbtn tool" data-tool="erase" data-when="motion"
+      <button class="tbtn tool" data-tool="erase"
               title="Sudda bana, passning eller skott (E)"><span class="ti">&#9003;</span></button>
 
-      <span class="tlabel" data-when="motion">Åkning</span>
-      <button class="tbtn seg dir active" data-dir="fwd" data-when="motion" title="Framåtåkning (F)">Framåt</button>
-      <button class="tbtn seg dir" data-dir="bwd" data-when="motion" title="Bakåtåkning (B)">Bakåt</button>
+      <span class="tlabel">Åkning</span>
+      <button class="tbtn seg dir active" data-dir="fwd" title="Framåtåkning (F)">Framåt</button>
+      <button class="tbtn seg dir" data-dir="bwd" title="Bakåtåkning (B)">Bakåt</button>
 
-      <span class="tlabel" data-when="motion">Steg</span>
-      <span id="stepList" class="steplist" data-when="motion"></span>
-      <button class="tbtn icon" id="btnAddStep" data-when="motion" title="Lägg till steg">+</button>
-      <button class="tbtn icon" id="btnDelStep" data-when="motion" title="Ta bort sista steget">&minus;</button>
+      <span class="tlabel">Steg</span>
+      <span id="stepList" class="steplist"></span>
+      <button class="tbtn icon" id="btnAddStep" title="Lägg till steg">+</button>
+      <button class="tbtn icon" id="btnDelStep" title="Ta bort sista steget">&minus;</button>
 
-      <button class="tbtn play" id="btnPlay" data-when="motion"
+      <button class="tbtn play" id="btnPlay"
               title="Spela från detta steg och framåt (Mellanslag)">&#9654; Spela</button>
-      <button class="tbtn play" id="btnPlayAll" data-when="motion"
+      <button class="tbtn play" id="btnPlayAll"
               title="Spela alla steg från början">&#9654;&#9654; Alla</button>
-      <button class="tbtn stop" id="btnStop" data-when="motion"
+      <button class="tbtn stop" id="btnStop"
               title="Avbryt uppspelningen (Esc)">&#9632; Stoppa</button>
-      <button class="tbtn" id="btnReset" data-when="motion" title="Återställ (R)">&#8635; Reset</button>
-      <button class="tbtn" id="btnClearPaths" data-when="motion" title="Ta bort alla inspelade banor">Rensa banor</button>
+      <button class="tbtn" id="btnReset" title="Återställ (R)">&#8635; Reset</button>
+
+      <button class="tbtn" data-act="undo" title="Ångra senaste rörelsen (Ctrl+Z)">Ångra</button>
+      <button class="tbtn" data-act="redo" title="Gör om senaste rörelsen (Ctrl+Y)">Gör om</button>
+      <button class="tbtn" id="btnClearPaths" title="Ta bort alla inspelade banor">Rensa banor</button>
     </div>
 
   </header>
