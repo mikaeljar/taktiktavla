@@ -14,7 +14,14 @@ For utveckling: `python -m http.server 8777` och oppna
 
 ## Live
 
-Publiceras via GitHub Pages fran `main`-grenen.
+<https://mikaeljar.github.io/taktiktavla/> - publiceras via GitHub Pages fran
+`main`-grenen.
+
+## Installera som app
+
+Sidan ar en PWA. I Chrome pa Android: oppna live-adressen, tryck pa
+meny (tre prickar) och valj **Lagg till pa startskarmen** / **Installera app**.
+Den oppnas da i helskarm utan adressfalt och fungerar aven offline.
 
 ## Funktioner
 

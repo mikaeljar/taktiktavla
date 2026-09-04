@@ -9,6 +9,10 @@ Språk i projektet är **svenska** — all UI-text, alla notiser och all dokumen
 
 Dubbelklicka på `index.html`. Ingen webbserver, inget byggsteg, inga beroenden.
 
+Sidan publiceras via GitHub Pages (`main`-grenen, rot) på
+<https://mikaeljar.github.io/taktiktavla/> och är installerbar som app
+(manifest + service worker).
+
 För utveckling finns `.claude/launch.json` som startar `python -m http.server 8777`.
 Använd den när du behöver testa i Browser-panelen.
 
@@ -46,6 +50,9 @@ förstöra dubbelklick-fallet. Ändra inte på det.
 | `js/save.js` | Sparade spel i localStorage med reserv i minnet |
 | `js/ui.js` | Startmeny, verktygsfält, stegväljare, tangentbord |
 | `js/main.js` | Uppstart och initieringsordning |
+| `manifest.webmanifest` | PWA-metadata: namn, ikoner, `display: standalone` |
+| `sw.js` | Service worker, **nätverk-först** (online = alltid senaste kod, offline = cache) |
+| `icons/` | App-ikoner 192 / 512 px, genererade utan beroenden |
 
 ## Bärande designbeslut
 
@@ -99,6 +106,12 @@ Två separata historiker. `HTB.ui.undo/redo` routar efter läge: **rörelseläge
 `anim.undo()`**, av → `draw.undo()`. `anim` använder hela ögonblicksbilder av
 `base` + `steps`; kopiera **alla** fält på puckhändelser (`x`, `y`, `goal`), annars
 tappar ett skott sin målpunkt.
+
+### Service worker och js-cachen
+`sw.js` är **nätverk-först**: uppkopplad hämtas alltid färsk kod, så den hårda
+js-cachen slår inte igenom för installerade användare. Cachen används bara som
+reserv offline. Måste `sw.js` ändras i struktur — bumpa `CACHE`-namnet.
+Registreras bara över `http(s)`, aldrig via `file://`.
 
 ## Konventioner
 
